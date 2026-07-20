@@ -6,6 +6,8 @@ bool endsWith(char *str, char *substr)
 {
     int strLen = strlen(str);
     int substrLen = strlen(substr);
+    if (substrLen == 0 || strLen == 0)
+        return false;
     for (int i = 1; i < substrLen; i++)
     {
         if (str[strLen - i] != substr[substrLen - i])
