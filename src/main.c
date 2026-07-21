@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../include/linked_list.h"
 
 bool endsWith(char *str, char *substr)
 {
@@ -39,7 +40,7 @@ bool cat(char *filename)
     return true;
 }
 
-void selectCommand()
+void selectCommand(void)
 {
     char FILENAME[] = "message.txt\0";
     printf("Enter a number:\n");
@@ -60,5 +61,10 @@ void selectCommand()
 int main(void)
 {
     selectCommand();
+    struct List *list = linkedListCreate();
+    char *wow;
+    linkedListAddToEnd(list, "dsaonsdon");
+    linkedListGetValue(list, 0, &wow);
+    printf("%s", wow);
     return 0;
 }
