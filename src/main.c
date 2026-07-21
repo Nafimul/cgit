@@ -63,7 +63,7 @@ int main(void)
     selectCommand();
     struct List *list = linkedListCreate();
     char *wow;
-    linkedListAddToEnd(list, "dsaonsdon");
+    linkedListAddToEnd(list, "jdgsoinoirfoi");
     linkedListGetValue(list, 0, &wow);
     printf("%s", wow);
     return 0;
