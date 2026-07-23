@@ -1,7 +1,7 @@
 #pragma once
 
 typedef struct List List;
-typedef char *NodeType;
+typedef void *NodeType;
 
 struct List *linkedListCreate(void);
 
