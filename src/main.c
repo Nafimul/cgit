@@ -17,19 +17,20 @@ bool endsWith(char *str, char *substr)
     return true;
 }
 
-bool isTxt(char *filename)
+bool isTxt(char *filepath)
 {
-    return endsWith(filename, ".txt\0");
+    return endsWith(filepath, ".txt\0");
 }
 
-bool cat(char *filename)
+bool cat(char *filepath)
 {
-    if (!isTxt(filename))
+    if (!isTxt(filepath))
         return false;
 
-    FILE *fileP = fopen(filename, "r");
+    FILE *fileP = fopen(filepath, "r");
     if (fileP == NULL)
         return false;
+
     char fileStr[100];
 
     while (fgets(fileStr, 100, fileP))
@@ -42,29 +43,24 @@ bool cat(char *filename)
 
 void selectCommand(void)
 {
-    char FILENAME[] = "message.txt\0";
+    char FILEPATH[] = "../gitFiles/message.txt\0";
     printf("Enter a number:\n");
-    printf("1) cat %s\n", FILENAME);
-    printf("2) git add %s\n", FILENAME);
-    printf("3) git commit -m %s\n", FILENAME);
-    printf("4) git revert %s\n", FILENAME);
-    printf("5) git log %s\n", FILENAME);
+    printf("1) cat %s\n", FILEPATH);
+    printf("2) git add %s\n", FILEPATH);
+    printf("3) git commit -m %s\n", FILEPATH);
+    printf("4) git revert %s\n", FILEPATH);
+    printf("5) git log %s\n", FILEPATH);
 
     // int choice;
     // scanf("%d", &choice);
     int choice = 1;
 
     if (choice == 1)
-        cat(FILENAME);
+        cat(FILEPATH);
 }
 
 int main(void)
 {
     selectCommand();
-    struct List *list = linkedListCreate();
-    char *wow;
-    linkedListAddToEnd(list, "jdgsoinoirfoi");
-    linkedListGetValue(list, 0, &wow);
-    printf("%s", wow);
     return 0;
 }
