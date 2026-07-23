@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include "../include/linked_list.h"
@@ -22,28 +23,34 @@ bool isTxt(char *filepath)
     return endsWith(filepath, ".txt\0");
 }
 
-bool cat(char *filepath)
+char *fileToString(char *filepath)
 {
     if (!isTxt(filepath))
-        return false;
+        return NULL;
 
     FILE *fileP = fopen(filepath, "r");
     if (fileP == NULL)
-        return false;
+        return NULL;
 
-    char fileStr[100];
-
-    while (fgets(fileStr, 100, fileP))
-        printf("%s", fileStr);
-    printf("\n");
+    char *fileStr = malloc(sizeof(char *));
+    const int BUFFERSIZE = 20;
+    char buffer[BUFFERSIZE];
+    while (fgets(buffer, BUFFERSIZE, fileP))
+        strcat(fileStr, buffer);
 
     fclose(fileP);
-    return true;
+    return fileStr;
+}
+
+void cat(char *string)
+{
+    printf("%s\n", string);
 }
 
 void selectCommand(void)
 {
     char FILEPATH[] = "../gitFiles/message.txt\0";
+char *fileContents = fileToString(FILEPATH);
     printf("Enter a number:\n");
     printf("1) cat %s\n", FILEPATH);
     printf("2) git add %s\n", FILEPATH);
@@ -56,7 +63,9 @@ void selectCommand(void)
     int choice = 1;
 
     if (choice == 1)
-        cat(FILEPATH);
+        cat(fileContents);
+
+    free(fileContents);
 }
 
 int main(void)
