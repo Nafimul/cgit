@@ -4,6 +4,14 @@
 #include <string.h>
 #include "../include/linked_list.h"
 
+struct Change
+{
+    char *filePath;
+    char *oldLine;
+    char *newLine;
+    int lineNum;
+};
+
 bool endsWith(char *str, char *substr)
 {
     int strLen = strlen(str);
@@ -50,7 +58,7 @@ void cat(char *string)
 void selectCommand(void)
 {
     char FILEPATH[] = "../gitFiles/message.txt\0";
-char *fileContents = fileToString(FILEPATH);
+    char *fileContents = fileToString(FILEPATH);
     printf("Enter a number:\n");
     printf("1) cat %s\n", FILEPATH);
     printf("2) git add %s\n", FILEPATH);
@@ -70,6 +78,8 @@ char *fileContents = fileToString(FILEPATH);
 
 int main(void)
 {
+    List *addedChanges = linkedListCreate();
+    List *commits = linkedListCreate();
     selectCommand();
     return 0;
 }
