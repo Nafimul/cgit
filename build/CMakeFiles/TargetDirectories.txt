@@ -1,3 +1,0 @@
-/home/nafim/projects/cgit/build/CMakeFiles/main.dir
-/home/nafim/projects/cgit/build/CMakeFiles/edit_cache.dir
-/home/nafim/projects/cgit/build/CMakeFiles/rebuild_cache.dir
