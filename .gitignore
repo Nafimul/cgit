@@ -56,7 +56,7 @@ dkms.conf
 
 #extra stuff
 gitFiles/message.txt
-build/main
+build/*
 
 #CMake
 *CMakeLists.txt.user
