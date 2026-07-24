@@ -57,7 +57,7 @@ void cat(char *string)
 
 void selectCommand(void)
 {
-    char FILEPATH[] = "gitFiles/message.txt\0";
+    char FILEPATH[] = "../gitFiles/message.txt\0";
     char *fileContents = fileToString(FILEPATH);
     printf("Enter a number:\n");
     printf("1) cat %s\n", FILEPATH);
