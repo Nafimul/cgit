@@ -70,5 +70,17 @@ bool linkedListGetValue(struct List *list, int pos, NodeType *out)
     if (node == NULL)
         return false;
     *out = node->value;
+
     return true;
+}
+
+int linkedListLength(struct List *list)
+{
+    struct Node *node = list->first;
+    for (int i = 0;; i++)
+    {
+        if (node == NULL)
+            return i;
+        node = node->next;
+    }
 }

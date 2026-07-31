@@ -8,3 +8,5 @@ struct List *linkedListCreate(void);
 struct Node *linkedListAddToEnd(struct List *list, NodeType value);
 
 bool linkedListGetValue(struct List *list, int pos, NodeType *out);
+
+int linkedListLength(struct List *list);
