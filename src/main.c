@@ -80,6 +80,7 @@ TxtFile *toFileObj(char *filepath)
         strcat(fileStr, buffer);
 
     fclose(file);
+    file = NULL;
     fileObj->contents = fileStr;
     fileObj->filePath = filepath;
     return fileObj;
@@ -176,14 +177,14 @@ void gitLog(List *commits)
     for (int i = 0; i < linkedListLength(commits); i++)
     {
         Commit *commit = NULL;
-        linkedListGetValue(commits, i, (void *)commit);
+        linkedListGetValue(commits, i, (void **)&commit);
         printf("%d) %s", i + 1, commit->message);
     }
 }
 
 bool selectCommand(List *commits, List *files)
 {
-    char *FILEPATH = "../gitFiles/a.txt\0";
+    char *FILEPATH = "../gitFiles/c.txt\0";
     TxtFile *file = toFileObj(FILEPATH);
     printf("Enter a number:\n");
     printf("1) cat %s\n", FILEPATH);
