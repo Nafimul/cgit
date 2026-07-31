@@ -26,6 +26,20 @@ bool endsWith(char *str, char *substr)
     return true;
 }
 
+bool startsWith(char *str, char *substr)
+{
+    int strLen = strlen(str);
+    int substrLen = strlen(substr);
+    if (substrLen == 0 || strLen == 0)
+        return false;
+    for (int i = 0; i < substrLen; i++)
+    {
+        if (str[i] != substr[i])
+            return false;
+    }
+    return true;
+}
+
 bool isTxt(char *filepath)
 {
     return endsWith(filepath, ".txt\0");
