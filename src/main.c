@@ -20,6 +20,12 @@ typedef struct
     List *changes;
 } Commit;
 
+void crash()
+{
+    cat("there was an error");
+    exit(EXIT_FAILURE);
+}
+
 bool commit(List *commits, TxtFile *newFile, List *oldFiles)
 {
     cat("enter a commit message");
@@ -79,20 +85,39 @@ void gitLog(List *commits)
     }
 }
 
-bool selectCommand(List *commits, List *files)
+TxtFile *selectFile(List *files)
 {
-    char *FILEPATH = "../gitFiles/a.txt\0";
-    TxtFile *file = toFileObj(FILEPATH);
-    if (file == NULL)
+    if (linkedListLength(files) == 0)
+        return NULL;
+    printf("Enter a number:\n");
+    for (int i = 0; i < linkedListLength(files); i++)
     {
-        cat("failed to read file");
-        return false;
+        TxtFile *file = NULL;
+        linkedListGetValue(files, i, (void **)&file);
+        printf("%d) %s\n", i + 1, file->filePath);
     }
 
+    while (true)
+    {
+        int choice;
+        scanf("%d", &choice);
+        TxtFile *oldFile = NULL;
+        linkedListGetValue(files, choice - 1, (void **)&oldFile);
+        if (oldFile == NULL)
+            continue;
+        TxtFile *newFile = toFileObj(oldFile->filePath);
+        return newFile;
+    }
+}
+
+bool selectCommand(List *commits, List *files)
+{
+    TxtFile *file = NULL;
+
     printf("Enter a number:\n");
-    printf("1) cat %s\n", FILEPATH);
-    printf("2) git commit -m %s\n", FILEPATH);
-    printf("3) git revert %s\n", FILEPATH);
+    printf("1) cat\n");
+    printf("2) git commit\n");
+    printf("3) git revert\n");
     printf("4) git log\n");
     printf("5) exit\n");
 
@@ -101,9 +126,17 @@ bool selectCommand(List *commits, List *files)
     // int choice = 2;
 
     if (choice == 1)
+    {
+        file = selectFile(files);
+        if (file == NULL)
+            crash();
         cat(file->contents);
+    }
     else if (choice == 2)
     {
+        file = selectFile(files);
+        if (file == NULL)
+            crash();
         if (commit(commits, file, files))
             cat("succsessfully commited");
     }
@@ -123,14 +156,13 @@ int main(void)
     List *commits = linkedListCreate();
     List *files = linkedListCreate();
 
-    // char *FILEPATHS[3] = {"../gitFiles/a.txt\0", "../gitFiles/b.txt\0", "../gitFiles/c.txt\0"};
-    char *FILEPATHS[1] = {"../gitFiles/a.txt\0"};
+    char *FILEPATHS[3] = {"../gitFiles/a.txt\0", "../gitFiles/b.txt\0", "../gitFiles/d.txt\0"};
     int numStartingFiles = sizeof(FILEPATHS) / sizeof(FILEPATHS[0]);
     for (int i = 0; i < numStartingFiles; i++)
     {
         TxtFile *file = toFileObj(FILEPATHS[i]);
         if (file == NULL)
-            exit(EXIT_FAILURE);
+            crash();
         linkedListAddToEnd(files, file);
     }
 
