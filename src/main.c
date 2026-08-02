@@ -3,11 +3,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../include/linked_list.h"
-
-void cat(char *string)
-{
-    printf("%s\n", string);
-}
+#include "../include/utils.h"
+#include "../include/txt_file.h"
 
 typedef struct
 {
@@ -22,107 +19,6 @@ typedef struct
     char *message;
     List *changes;
 } Commit;
-
-typedef struct
-{
-    char *filePath;
-    char *contents;
-} TxtFile;
-
-bool endsWith(char *str, char *substr)
-{
-    int strLen = strlen(str);
-    int substrLen = strlen(substr);
-    if (substrLen == 0 || strLen == 0)
-        return false;
-    for (int i = 1; i < substrLen; i++)
-    {
-        if (str[strLen - i] != substr[substrLen - i])
-            return false;
-    }
-    return true;
-}
-
-bool startsWith(char *str, char *substr)
-{
-    int strLen = strlen(str);
-    int substrLen = strlen(substr);
-    if (substrLen == 0 || strLen == 0)
-        return false;
-    for (int i = 0; i < substrLen; i++)
-    {
-        if (str[i] != substr[i])
-            return false;
-    }
-    return true;
-}
-
-bool isTxt(char *filepath)
-{
-    return endsWith(filepath, ".txt\0");
-}
-
-TxtFile *toFileObj(char *filepath)
-{
-    if (!isTxt(filepath))
-        return NULL;
-
-    FILE *file = fopen(filepath, "r");
-    if (file == NULL)
-        return NULL;
-
-    TxtFile *fileObj = malloc(sizeof(TxtFile));
-    char *fileStr = malloc(sizeof(char));
-
-    const int BUFFERSIZE = 20;
-    char buffer[BUFFERSIZE];
-    while (fgets(buffer, BUFFERSIZE, file))
-        strcat(fileStr, buffer);
-
-    fclose(file);
-    file = NULL;
-    fileObj->contents = fileStr;
-    fileObj->filePath = filepath;
-    return fileObj;
-}
-
-List *splitStr(char *str, char delimiter)
-{
-    List *strings = linkedListCreate();
-
-    linkedListAddToEnd(strings, strtok(str, &delimiter));
-
-    return strings;
-}
-
-void removeCharFromStart(char *str, char toRemove)
-{
-    for (int i = 0; i < strlen(str); i++)
-    {
-        if (str[i] != toRemove)
-            return;
-    }
-}
-
-char *getUserInput(int maxLen)
-{
-    int maxBits = maxLen * sizeof(char);
-    char *input = malloc(maxBits);
-    while (true)
-    {
-        input = fgets(input, maxBits, stdin);
-        // if fgets failed, return null
-        if (input == NULL)
-            return NULL;
-        // if there are newlines left in stdin, get rid of them
-        if (strcmp(input, "") != 0 && strcmp(input, "\n") != 0)
-            break;
-        // if input was too long return null
-        if (strstr(input, "\n") == NULL)
-            return NULL;
-    }
-    return input;
-}
 
 bool commit(List *commits, TxtFile *newFile, List *oldFiles)
 {
@@ -169,7 +65,7 @@ bool commit(List *commits, TxtFile *newFile, List *oldFiles)
 
     Commit *commit = malloc(sizeof(Commit));
     *commit = (Commit){.message = message, .changes = changes};
-linkedListAddToEnd(commits, commit);
+    linkedListAddToEnd(commits, commit);
     return true;
 }
 
@@ -185,9 +81,9 @@ void gitLog(List *commits)
 
 bool selectCommand(List *commits, List *files)
 {
-    char *FILEPATH = "../gitFiles/c.txt\0";
+    char *FILEPATH = "../gitFiles/a.txt\0";
     TxtFile *file = toFileObj(FILEPATH);
-if (file == NULL)
+    if (file == NULL)
     {
         cat("failed to read file");
         return false;
@@ -214,10 +110,10 @@ if (file == NULL)
     else if (choice == 4)
         gitLog(commits);
     else if (choice == 5)
-{
+    {
         free(file);
         return false;
-}
+    }
     free(file);
     return true;
 }
@@ -227,12 +123,13 @@ int main(void)
     List *commits = linkedListCreate();
     List *files = linkedListCreate();
 
-    char *FILEPATHS[3] = {"../gitFiles/a.txt\0", "../gitFiles/b.txt\0", "../gitFiles/c.txt\0"};
+    // char *FILEPATHS[3] = {"../gitFiles/a.txt\0", "../gitFiles/b.txt\0", "../gitFiles/c.txt\0"};
+    char *FILEPATHS[1] = {"../gitFiles/a.txt\0"};
     int numStartingFiles = sizeof(FILEPATHS) / sizeof(FILEPATHS[0]);
     for (int i = 0; i < numStartingFiles; i++)
     {
         TxtFile *file = toFileObj(FILEPATHS[i]);
-if (file == NULL)
+        if (file == NULL)
             exit(EXIT_FAILURE);
         linkedListAddToEnd(files, file);
     }

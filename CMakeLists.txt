@@ -7,6 +7,8 @@ add_executable(
     main
     src/main.c
     src/linked_list.c
+    src/utils.c
+    src/txt_file.c
 )
 
 target_include_directories(
