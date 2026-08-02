@@ -169,6 +169,7 @@ bool commit(List *commits, TxtFile *newFile, List *oldFiles)
 
     Commit *commit = malloc(sizeof(Commit));
     *commit = (Commit){.message = message, .changes = changes};
+linkedListAddToEnd(commits, commit);
     return true;
 }
 
