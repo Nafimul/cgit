@@ -26,15 +26,9 @@ void crash()
     exit(EXIT_FAILURE);
 }
 
-bool commit(List *commits, TxtFile *newFile, List *oldFiles)
+TxtFile *getOldFile(TxtFile *newFile, List *oldFiles)
 {
-    cat("enter a commit message");
-    char *message = getUserInput(100);
-
-    List *changes = linkedListCreate();
     TxtFile *oldFile = NULL;
-
-    // get the oldFile corresponding to newFile
     for (int i = 0; i < linkedListLength(oldFiles); i++)
     {
         linkedListGetValue(oldFiles, i, (void **)&oldFile);
@@ -43,8 +37,18 @@ bool commit(List *commits, TxtFile *newFile, List *oldFiles)
             break;
         // if the old file was not found
         if (i == linkedListLength(oldFiles) - 1)
-            return false;
+            return NULL;
     }
+    return oldFile;
+}
+
+bool commit(List *commits, TxtFile *newFile, List *oldFiles)
+{
+    cat("enter a commit message");
+    char *message = getUserInput(100);
+
+    List *changes = linkedListCreate();
+    TxtFile *oldFile = getOldFile(newFile, oldFiles);
 
     List *oldLines = splitStr(oldFile->contents, '\n');
     List *newLines = splitStr(newFile->contents, '\n');
