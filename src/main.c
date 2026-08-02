@@ -187,6 +187,12 @@ bool selectCommand(List *commits, List *files)
 {
     char *FILEPATH = "../gitFiles/c.txt\0";
     TxtFile *file = toFileObj(FILEPATH);
+if (file == NULL)
+    {
+        cat("failed to read file");
+        return false;
+    }
+
     printf("Enter a number:\n");
     printf("1) cat %s\n", FILEPATH);
     printf("2) git commit -m %s\n", FILEPATH);
@@ -208,7 +214,11 @@ bool selectCommand(List *commits, List *files)
     else if (choice == 4)
         gitLog(commits);
     else if (choice == 5)
+{
+        free(file);
         return false;
+}
+    free(file);
     return true;
 }
 
@@ -222,6 +232,8 @@ int main(void)
     for (int i = 0; i < numStartingFiles; i++)
     {
         TxtFile *file = toFileObj(FILEPATHS[i]);
+if (file == NULL)
+            exit(EXIT_FAILURE);
         linkedListAddToEnd(files, file);
     }
 
