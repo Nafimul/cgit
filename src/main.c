@@ -105,7 +105,7 @@ TxtFile *selectFile(List *files)
         linkedListGetValue(files, choice - 1, (void **)&oldFile);
         if (oldFile == NULL)
             continue;
-        TxtFile *newFile = toFileObj(oldFile->filePath);
+        TxtFile *newFile = toTxtFile(oldFile->filePath);
         return newFile;
     }
 }
@@ -123,7 +123,6 @@ bool selectCommand(List *commits, List *files)
 
     int choice;
     scanf("%d", &choice);
-    // int choice = 2;
 
     if (choice == 1)
     {
@@ -160,7 +159,7 @@ int main(void)
     int numStartingFiles = sizeof(FILEPATHS) / sizeof(FILEPATHS[0]);
     for (int i = 0; i < numStartingFiles; i++)
     {
-        TxtFile *file = toFileObj(FILEPATHS[i]);
+        TxtFile *file = toTxtFile(FILEPATHS[i]);
         if (file == NULL)
             crash();
         linkedListAddToEnd(files, file);

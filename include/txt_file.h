@@ -4,4 +4,4 @@ typedef struct
     char *contents;
 } TxtFile;
 
-TxtFile *toFileObj(char *filepath);
+TxtFile *toTxtFile(char *filepath);

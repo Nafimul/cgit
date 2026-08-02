@@ -11,7 +11,7 @@
             goto cleanup; \
     } while (0)
 
-void fileObjFree(TxtFile *file)
+void txtFileFree(TxtFile *file)
 {
     if (!file)
         return;
@@ -21,7 +21,7 @@ void fileObjFree(TxtFile *file)
     free(file);
 }
 
-TxtFile *toFileObj(char *filepath)
+TxtFile *toTxtFile(char *filepath)
 {
     // Source for reading to file to buffer (modified by me) - https://stackoverflow.com/a/174552
     // Posted by Nils Pipenbrinck
@@ -54,7 +54,7 @@ cleanup:
     free(buffer);
 
     if (fileObj && fileObj->filePath == NULL)
-        fileObjFree(fileObj);
+        txtFileFree(fileObj);
     return fileObj;
 }
 
