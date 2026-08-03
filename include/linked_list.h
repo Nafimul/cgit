@@ -5,7 +5,7 @@ typedef void *NodeType;
 
 struct List *linkedListCreate(void);
 
-struct Node *linkedListAddToEnd(struct List *list, NodeType value);
+struct NodeType *linkedListAddToEnd(struct List *list, NodeType value);
 
 bool linkedListGetValue(struct List *list, int pos, NodeType *out);
 

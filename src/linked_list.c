@@ -32,7 +32,7 @@ static struct Node *linkedListCreateNode(NodeType value)
     return node;
 }
 
-struct Node *linkedListAddToEnd(struct List *list, NodeType value)
+struct NodeType *linkedListAddToEnd(struct List *list, NodeType value)
 {
     struct Node *node = linkedListCreateNode(value);
     if (node == NULL)
@@ -47,7 +47,7 @@ struct Node *linkedListAddToEnd(struct List *list, NodeType value)
         list->last->next = node;
         list->last = node;
     }
-    return node;
+    return node->value;
 }
 
 static struct Node *linkedListGetNode(struct List *list, int pos)
