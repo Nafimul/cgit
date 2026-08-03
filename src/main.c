@@ -137,12 +137,53 @@ TxtFile *selectFile(List *files)
 
 bool revertChange(Change *change)
 {
+    bool success = false;
 
+    TxtFile *txtFile = toTxtFile(change->filePath);
+    CHECK(txtFileEditLine(txtFile, change->newLine, change->lineNum));
+
+    FILE *newFile = fopen(change->filePath, "w+");
+    CHECK(newFile != NULL);
+    CHECK(fprintf(newFile, "%s", txtFile->contents) >= 0);
+    cat(txtFile->contents);
+    success = true;
+
+cleanup:
+    fclose(newFile);
+    txtFileFree(txtFile);
+    return success;
+
+    // int BUFFERSIZE = 50;
+    // char buffer[BUFFERSIZE];
+    // FILE *file = fopen(change->filePath, "r+");
+    // for (int i = 1; i < change->lineNum; i++)
+    // {
+    //     fgets(buffer, BUFFERSIZE, file);
+    // }
+    // int lineStartPos = ftell(file);
+    // fgets(buffer, BUFFERSIZE, file);
+    // int lineEndPos = ftell(file);
+
+    // free(file);
 }
 
 bool revertCommit(Commit *commit)
 {
+    printf("%d", linkedListLength(commit->changes));
+    bool success = true;
 
+    if (commit->changes == NULL)
+        return success;
+
+    for (int i = 0; i < linkedListLength(commit->changes); i++)
+    {
+        Change *change = NULL;
+        linkedListGetValue(commit->changes, i, (void **)&change);
+        if (!revertChange(change))
+            success = false;
+    }
+
+    return success;
 }
 
 Commit *selectCommit(List *commits)

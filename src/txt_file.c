@@ -24,15 +24,19 @@ bool txtFileEditLine(TxtFile *file, char *newLine, int lineNum)
     for (int i = 0; i < linkedListLength(oldLines); i++)
     {
         if (i == lineNum - 1)
+        {
             strcat(newContents, newLine);
+            strcat(newContents, "\n");
+        }
         else
         {
             char *oldLine = NULL;
             linkedListGetValue(oldLines, i, (void **)&oldLine);
-            if (oldLine == NULL)
-                strcat(newContents, "\n");
-            else
+            if (oldLine != NULL)
+            {
                 strcat(newContents, oldLine);
+            }
+            strcat(newContents, "\n");
         }
     }
 
