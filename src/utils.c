@@ -44,9 +44,23 @@ bool isTxt(char *filepath)
 
 List *splitStr(char *str, char delimiter)
 {
+    char strCopy[strlen(str)];
+    strcpy(strCopy, str);
     List *strings = linkedListCreate();
 
-    linkedListAddToEnd(strings, strtok(str, &delimiter));
+    for (int i = 0;; i++)
+    {
+        char *tempSubStr = NULL;
+        if (i == 0)
+            tempSubStr = strtok(strCopy, &delimiter);
+        else
+            tempSubStr = strtok(NULL, &delimiter);
+        if (tempSubStr == NULL)
+            break;
+        char *substr = malloc(strlen(tempSubStr) * sizeof(char));
+        strcpy(substr, tempSubStr);
+        linkedListAddToEnd(strings, substr);
+    }
 
     return strings;
 }
