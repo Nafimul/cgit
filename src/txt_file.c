@@ -21,6 +21,33 @@ void txtFileFree(TxtFile *file)
     free(file);
 }
 
+bool txtFileEditLine(TxtFile *file, char *newLine, int lineNum)
+{
+    char *newContents = malloc(sizeof(char) * strlen(file->contents) + sizeof(newLine));
+    if (newContents == NULL)
+        return false;
+    List *oldLines = splitStr(file->contents, '\n');
+
+    for (int i = 0; i < linkedListLength(oldLines); i++)
+    {
+        if (i == lineNum - 1)
+            strcat(newContents, newLine);
+        else
+        {
+            char *oldLine = NULL;
+            linkedListGetValue(oldLines, i, (void **)&oldLine);
+            if (oldLine == NULL)
+                strcat(newContents, "\n");
+            else
+                strcat(newContents, oldLine);
+        }
+    }
+
+    free(file->contents);
+    file->contents = newContents;
+    return true;
+}
+
 TxtFile *toTxtFile(char *filepath)
 {
     // Source for reading to file to buffer (modified by me) - https://stackoverflow.com/a/174552

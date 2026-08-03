@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 typedef struct
 {
     char *filePath;
@@ -5,3 +7,7 @@ typedef struct
 } TxtFile;
 
 TxtFile *toTxtFile(char *filepath);
+
+bool txtFileEditLine(TxtFile *file, char *newLine, int lineNum);
+
+void txtFileFree(TxtFile *file);
