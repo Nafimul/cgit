@@ -4,13 +4,6 @@
 #include "../include/txt_file.h"
 #include "../include/utils.h"
 
-#define CHECK(x)          \
-    do                    \
-    {                     \
-        if (!(x))         \
-            goto cleanup; \
-    } while (0)
-
 void txtFileFree(TxtFile *file)
 {
     if (!file)
@@ -84,32 +77,3 @@ cleanup:
         txtFileFree(fileObj);
     return fileObj;
 }
-
-// TxtFile *toFileObj(char *filepath)
-// {
-//     if (!isTxt(filepath))
-//         return NULL;
-
-//     FILE *file = fopen(filepath, "r");
-//     if (file == NULL)
-//         return NULL;
-
-//     TxtFile *fileObj = malloc(sizeof(TxtFile));
-//     char *fileStr = malloc(sizeof(char));
-
-//     const int BUFFERSIZE = 20;
-//     char buffer[BUFFERSIZE];
-//     while (fgets(buffer, BUFFERSIZE, file))
-//         strcat(fileStr, buffer);
-
-//     if (fclose(file) == -1)
-//     {
-//         free(fileObj);
-//         free(fileStr);
-//         return NULL;
-//     }
-//     file = NULL;
-//     fileObj->contents = fileStr;
-//     fileObj->filePath = strdup(filepath);
-//     return fileObj;
-// }
