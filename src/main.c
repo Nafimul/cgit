@@ -42,6 +42,29 @@ TxtFile *getOldFile(TxtFile *newFile, List *oldFiles)
     return oldFile;
 }
 
+bool applyChange(TxtFile *file, Change *change)
+{
+    return txtFileEditLine(file, change->newLine, change->lineNum);
+}
+
+bool applyCommit(TxtFile *file, Commit *commit)
+{
+    bool success = true;
+
+    if (commit->changes == NULL)
+        return success;
+
+    for (int i = 0; i < linkedListLength(commit->changes); i++)
+    {
+        Change *change = NULL;
+        linkedListGetValue(commit->changes, i, (void **)&change);
+        if (!applyChange(file, change))
+            success = false;
+    }
+
+    return success;
+}
+
 bool commit(List *commits, TxtFile *newFile, List *oldFiles)
 {
     cat("enter a commit message");
@@ -59,16 +82,13 @@ bool commit(List *commits, TxtFile *newFile, List *oldFiles)
         linkedListGetValue(oldLines, lineNum - 1, (void **)&oldLine);
         char *newLine = NULL;
         linkedListGetValue(newLines, lineNum - 1, (void **)&newLine);
-        if (oldLine == NULL || newLine == NULL)
+        if (newLine == NULL)
             break;
-        cat(oldLine);
-        cat(newLine);
-        if (strcmp(oldLine, newLine) != 0)
+
+        if (oldLine == NULL || strcmp(oldLine, newLine) != 0)
         {
             Change *change = malloc(sizeof(Change));
             *change = (Change){.filePath = newFile->filePath, .lineNum = lineNum, .newLine = newLine, .oldLine = oldLine};
-            cat(change->newLine);
-            cat(change->oldLine);
             linkedListAddToEnd(changes, change);
         }
     }
@@ -76,6 +96,7 @@ bool commit(List *commits, TxtFile *newFile, List *oldFiles)
     Commit *commit = malloc(sizeof(Commit));
     *commit = (Commit){.message = message, .changes = changes};
     linkedListAddToEnd(commits, commit);
+    applyCommit(oldFile, commit);
     return true;
 }
 
@@ -114,6 +135,40 @@ TxtFile *selectFile(List *files)
     }
 }
 
+bool revertChange(Change *change)
+{
+
+}
+
+bool revertCommit(Commit *commit)
+{
+
+}
+
+Commit *selectCommit(List *commits)
+{
+    if (linkedListLength(commits) == 0)
+        return NULL;
+    printf("Enter a number:\n");
+    for (int i = 0; i < linkedListLength(commits); i++)
+    {
+        Commit *commit = NULL;
+        linkedListGetValue(commits, i, (void **)&commit);
+        printf("%d) %s\n", i + 1, commit->message);
+    }
+
+    while (true)
+    {
+        int choice;
+        scanf("%d", &choice);
+        Commit *commit = NULL;
+        linkedListGetValue(commits, choice - 1, (void **)&commit);
+        if (commit == NULL)
+            continue;
+        return commit;
+    }
+}
+
 bool selectCommand(List *commits, List *files)
 {
     TxtFile *file = NULL;
@@ -141,7 +196,22 @@ bool selectCommand(List *commits, List *files)
         if (file == NULL)
             crash();
         if (commit(commits, file, files))
-            cat("succsessfully commited");
+            cat("successfully commited");
+        else
+            crash();
+    }
+    else if (choice == 3)
+    {
+        Commit *commit = selectCommit(commits);
+        if (commit == NULL)
+            cat("there are no commits to revert");
+        else
+        {
+            if (revertCommit(commit))
+                cat("successfully reverted!");
+            else
+                crash();
+        }
     }
     else if (choice == 4)
         gitLog(commits);
@@ -154,8 +224,19 @@ bool selectCommand(List *commits, List *files)
     return true;
 }
 
+//for random c stuff i need to quickly test. nothing to do with the program
+void test(void)
+{
+    char *str = "wow\nhi";
+    char copy[100];
+    strcpy(copy, str);
+    // char *substr = strtok(copy, "\n");
+    printf("%s\n", copy);
+}
+
 int main(void)
 {
+    test();
     List *commits = linkedListCreate();
     List *files = linkedListCreate();
 
