@@ -16,9 +16,10 @@ void txtFileFree(TxtFile *file)
 
 bool txtFileEditLine(TxtFile *file, char *newLine, int lineNum)
 {
-    char *newContents = malloc(sizeof(char) * strlen(file->contents) + sizeof(newLine));
+    char *newContents = malloc(sizeof(char) * (strlen(file->contents) + strlen(newLine) + 1));
     if (newContents == NULL)
         return false;
+    newContents = strcpy(newContents, "");
     List *oldLines = splitStr(file->contents, '\n');
 
     for (int i = 0; i < linkedListLength(oldLines); i++)

@@ -140,7 +140,7 @@ bool revertChange(Change *change)
     bool success = false;
 
     TxtFile *txtFile = toTxtFile(change->filePath);
-    CHECK(txtFileEditLine(txtFile, change->newLine, change->lineNum));
+    CHECK(txtFileEditLine(txtFile, change->oldLine, change->lineNum));
 
     FILE *newFile = fopen(change->filePath, "w+");
     CHECK(newFile != NULL);
@@ -265,14 +265,11 @@ bool selectCommand(List *commits, List *files)
     return true;
 }
 
-//for random c stuff i need to quickly test. nothing to do with the program
+// for random c stuff i need to quickly test. nothing to do with the program
 void test(void)
 {
-    char *str = "wow\nhi";
-    char copy[100];
-    strcpy(copy, str);
-    // char *substr = strtok(copy, "\n");
-    printf("%s\n", copy);
+    char *str = "wow\0";
+    printf("%d\n", strlen(str));
 }
 
 int main(void)
