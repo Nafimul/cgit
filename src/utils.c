@@ -48,7 +48,7 @@ bool isTxt(char *filepath)
 
 List *splitStr(char *str, char delimiter)
 {
-    char strCopy[strlen(str)];
+    char strCopy[strlen(str) + 1];
     strcpy(strCopy, str);
     List *strings = linkedListCreate();
 
