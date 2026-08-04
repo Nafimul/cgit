@@ -15,6 +15,8 @@ void cat(char *string)
  */
 bool endsWith(char *str, char *substr)
 {
+    if (str == NULL || substr == NULL)
+        return false;
     int strLen = strlen(str);
     int substrLen = strlen(substr);
     if (substrLen == 0 || strLen == 0)
@@ -29,6 +31,8 @@ bool endsWith(char *str, char *substr)
 
 bool startsWith(char *str, char *substr)
 {
+    if (str == NULL || substr == NULL)
+        return false;
     int strLen = strlen(str);
     int substrLen = strlen(substr);
     if (substrLen == 0 || strLen == 0)
@@ -48,6 +52,9 @@ bool isTxt(char *filepath)
 
 List *splitStr(char *str, char delimiter)
 {
+    if (str == NULL)
+        return NULL;
+
     char strCopy[strlen(str) + 1];
     strcpy(strCopy, str);
     List *strings = linkedListCreate();
