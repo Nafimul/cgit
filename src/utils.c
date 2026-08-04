@@ -9,6 +9,10 @@ void cat(char *string)
     printf("%s\n", string);
 }
 
+/*
+ * @return bool whether the string ends with the substring.
+ * @note returns false if either string has 0 length. Does not check null character at end.
+ */
 bool endsWith(char *str, char *substr)
 {
     int strLen = strlen(str);
