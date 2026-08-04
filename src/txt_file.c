@@ -16,11 +16,17 @@ void txtFileFree(TxtFile *file)
 
 bool txtFileEditLine(TxtFile *file, char *newLine, int lineNum)
 {
-    char *newContents = malloc(sizeof(char) * (strlen(file->contents) + strlen(newLine) + 1));
-    if (newContents == NULL)
-        return false;
-    newContents = strcpy(newContents, "");
-    List *oldLines = splitStr(file->contents, '\n');
+    if (file == NULL || newLine == NULL || lineNum <= 0)
+        return NULL;
+
+    List *oldLines = NULL;
+    char *newContents = NULL;
+
+    newContents = malloc(sizeof(char) * (strlen(file->contents) + strlen(newLine) + 2));
+    CHECK(newContents != NULL);
+    strcpy(newContents, "");
+    oldLines = splitStr(file->contents, "\n");
+    CHECK(oldLines != NULL);
 
     for (int i = 0; i < linkedListLength(oldLines); i++)
     {
@@ -44,10 +50,19 @@ bool txtFileEditLine(TxtFile *file, char *newLine, int lineNum)
     free(file->contents);
     file->contents = newContents;
     return true;
+
+cleanup:
+    if (newContents != NULL)
+        free(newContents);
+    if (oldLines != NULL)
+        free(oldLines);
+    return false;
 }
 
 TxtFile *toTxtFile(char *filepath)
 {
+    if (filepath == NULL)
+        return NULL;
     // Source for reading to file to buffer (modified by me) - https://stackoverflow.com/a/174552
     // Posted by Nils Pipenbrinck
     // Retrieved 2026-08-02, License - CC BY-SA 2.5

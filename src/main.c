@@ -20,26 +20,52 @@ typedef struct
     List *changes;
 } Commit;
 
+void changeFree(Change *change, bool recursive)
+{
+    if (recursive)
+    {
+        free(change->filePath);
+        free(change->oldLine);
+        free(change->newLine);
+    }
+
+    free(change);
+}
+
+void commitFree(Commit *commit, bool recursive)
+{
+    if (recursive)
+    {
+        linkedListFree(commit->changes, true);
+        free(commit->message);
+    }
+
+    free(commit);
+}
+
 void crash()
 {
     cat("there was an error");
     exit(EXIT_FAILURE);
 }
 
-TxtFile *getOldFile(TxtFile *newFile, List *oldFiles)
+TxtFile *getMatchingFile(TxtFile *file, List *files)
 {
-    TxtFile *oldFile = NULL;
-    for (int i = 0; i < linkedListLength(oldFiles); i++)
-    {
-        linkedListGetValue(oldFiles, i, (void **)&oldFile);
+    if (file == NULL || files == NULL)
+        return NULL;
 
-        if (oldFile != NULL && strcmp(oldFile->filePath, newFile->filePath) == 0)
+    TxtFile *mathingFile = NULL;
+    for (int i = 0; i < linkedListLength(files); i++)
+    {
+        linkedListGetValue(files, i, (void **)&mathingFile);
+
+        if (mathingFile != NULL && strcmp(mathingFile->filePath, file->filePath) == 0)
             break;
         // if the old file was not found
-        if (i == linkedListLength(oldFiles) - 1)
+        if (i == linkedListLength(files) - 1)
             return NULL;
     }
-    return oldFile;
+    return mathingFile;
 }
 
 bool applyChange(TxtFile *file, Change *change)
@@ -49,6 +75,9 @@ bool applyChange(TxtFile *file, Change *change)
 
 bool applyCommit(TxtFile *file, Commit *commit)
 {
+    if (file == NULL || commit == NULL)
+        return NULL;
+
     bool success = true;
 
     if (commit->changes == NULL)
@@ -65,16 +94,100 @@ bool applyCommit(TxtFile *file, Commit *commit)
     return success;
 }
 
+Change *changeCreate(char *filePath, int lineNum, char *newLine, char *oldLine)
+{
+    if (filePath == NULL || lineNum <= 0)
+        return NULL;
+
+    char *filePathCopy = NULL;
+    char *newLineCopy = NULL;
+    char *oldLineCopy = NULL;
+    filePathCopy = malloc(sizeof(char) * (strlen(filePath) + 1));
+    if (newLine != NULL)
+        newLineCopy = malloc(sizeof(char) * (strlen(newLine) + 1));
+    else
+        newLineCopy = malloc(2 * sizeof(char));
+    if (oldLine != NULL)
+        oldLineCopy = malloc(sizeof(char) * (strlen(oldLine) + 1));
+    else
+        oldLineCopy = malloc(2 * sizeof(char));
+    CHECK(filePathCopy != NULL);
+    CHECK(newLineCopy != NULL);
+    CHECK(oldLineCopy != NULL);
+
+    Change *change = malloc(sizeof(Change));
+    CHECK(change != NULL);
+    if (oldLine == NULL)
+        strcpy(oldLineCopy, "\n");
+    else
+        strcpy(oldLineCopy, oldLine);
+    if (newLine == NULL)
+        strcpy(newLineCopy, "\n");
+    else
+        strcpy(newLineCopy, newLine);
+    strcpy(filePathCopy, filePath);
+
+    *change = (Change){.filePath = filePathCopy, .lineNum = lineNum, .newLine = newLineCopy, .oldLine = oldLineCopy};
+    return change;
+
+cleanup:
+    if (filePathCopy != NULL)
+        free(filePathCopy);
+    if (newLineCopy != NULL)
+        free(newLineCopy);
+    if (oldLineCopy != NULL)
+        free(oldLineCopy);
+    if (change != NULL)
+        free(change);
+
+    return NULL;
+}
+
+Commit *commitCreate(char *message, List *changes)
+{
+    if (message == NULL || changes == NULL)
+        return NULL;
+
+    char *messageCopy = NULL;
+    messageCopy = malloc(sizeof(char) * (strlen(message) + 1));
+    CHECK(messageCopy != NULL);
+
+    Commit *commit = malloc(sizeof(Commit));
+    CHECK(commit != NULL);
+    strcpy(messageCopy, message);
+
+    *commit = (Commit){.message = messageCopy, .changes = changes};
+    return commit;
+
+cleanup:
+    if (message != NULL)
+        free(message);
+    if (commit != NULL)
+        free(commit);
+
+    return NULL;
+}
+
 bool commit(List *commits, TxtFile *newFile, List *oldFiles)
 {
+    if (commits == NULL || newFile == NULL || oldFiles == NULL)
+        return NULL;
+
+    List *changes = NULL;
+    List *oldLines = NULL;
+    List *newLines = NULL;
+    Commit *commit = NULL;
+
     cat("enter a commit message");
-    char *message = getUserInput(100);
+    const int MAX_MESSAGE_LEN = 100;
+    char *message = getUserInput(MAX_MESSAGE_LEN);
 
-    List *changes = linkedListCreate();
-    TxtFile *oldFile = getOldFile(newFile, oldFiles);
+    changes = linkedListCreate();
+    CHECK(changes != NULL);
+    TxtFile *oldFile = getMatchingFile(newFile, oldFiles);
 
-    List *oldLines = splitStr(oldFile->contents, '\n');
-    List *newLines = splitStr(newFile->contents, '\n');
+    oldLines = splitStr(oldFile->contents, "\n");
+    newLines = splitStr(newFile->contents, "\n");
 
     for (int lineNum = 1;; lineNum++)
     {
@@ -87,21 +200,42 @@ bool commit(List *commits, TxtFile *newFile, List *oldFiles)
 
         if (oldLine == NULL || strcmp(oldLine, newLine) != 0)
         {
-            Change *change = malloc(sizeof(Change));
-            *change = (Change){.filePath = newFile->filePath, .lineNum = lineNum, .newLine = newLine, .oldLine = oldLine};
-            linkedListAddToEnd(changes, change);
+            Change *change = changeCreate(newFile->filePath, lineNum, newLine, oldLine);
+            CHECK(change != NULL);
+            CHECK(linkedListAddToEnd(changes, change) != NULL);
         }
     }
 
-    Commit *commit = malloc(sizeof(Commit));
-    *commit = (Commit){.message = message, .changes = changes};
-    linkedListAddToEnd(commits, commit);
-    applyCommit(oldFile, commit);
+    commit = commitCreate(message, changes);
+    CHECK(commit != NULL);
+    CHECK(linkedListAddToEnd(commits, commit) != NULL);
+    if (!applyCommit(oldFile, commit))
+    {
+        linkedListRemoveFromEnd(commits, true);
+        goto cleanup;
+    }
+
+    linkedListFree(oldLines, true);
+    linkedListFree(newLines, true);
     return true;
+
+cleanup:
+    if (oldLines != NULL)
+        linkedListFree(oldLines, true);
+    if (newLines != NULL)
+        linkedListFree(newLines, true);
+    if (changes != NULL)
+        linkedListFree(changes, true);
+    if (commit != NULL)
+        commitFree(commit, true);
+    return false;
 }
 
 void gitLog(List *commits)
 {
+    if (commits == NULL)
+        return;
+
     for (int i = 0; i < linkedListLength(commits); i++)
     {
         Commit *commit = NULL;
@@ -112,7 +246,7 @@ void gitLog(List *commits)
 
 TxtFile *selectFile(List *files)
 {
-    if (linkedListLength(files) == 0)
+    if (files == NULL || linkedListLength(files) == 0)
         return NULL;
     printf("Enter a number:\n");
     for (int i = 0; i < linkedListLength(files); i++)
@@ -129,17 +263,26 @@ TxtFile *selectFile(List *files)
         TxtFile *oldFile = NULL;
         linkedListGetValue(files, choice - 1, (void **)&oldFile);
         if (oldFile == NULL)
+        {
+            cat("invalid number. try again");
             continue;
+        }
         TxtFile *newFile = toTxtFile(oldFile->filePath);
+        if (newFile == NULL)
+            return NULL;
         return newFile;
     }
 }
 
 bool revertChange(Change *change)
 {
+    if (change == NULL)
+        return false;
+
     bool success = false;
 
     TxtFile *txtFile = toTxtFile(change->filePath);
+    CHECK(txtFile != NULL);
     CHECK(txtFileEditLine(txtFile, change->oldLine, change->lineNum));
 
     FILE *newFile = fopen(change->filePath, "w+");
@@ -152,24 +295,13 @@ cleanup:
     fclose(newFile);
     txtFileFree(txtFile);
     return success;
-
-    // int BUFFERSIZE = 50;
-    // char buffer[BUFFERSIZE];
-    // FILE *file = fopen(change->filePath, "r+");
-    // for (int i = 1; i < change->lineNum; i++)
-    // {
-    //     fgets(buffer, BUFFERSIZE, file);
-    // }
-    // int lineStartPos = ftell(file);
-    // fgets(buffer, BUFFERSIZE, file);
-    // int lineEndPos = ftell(file);
-
-    // free(file);
 }
 
 bool revertCommit(Commit *commit)
 {
-    printf("%d", linkedListLength(commit->changes));
+    if (commit == NULL)
+        return NULL;
+
     bool success = true;
 
     if (commit->changes == NULL)
@@ -188,8 +320,9 @@ bool revertCommit(Commit *commit)
 
 Commit *selectCommit(List *commits)
 {
-    if (linkedListLength(commits) == 0)
+    if (commits == NULL || linkedListLength(commits) == 0)
         return NULL;
+
     printf("Enter a number:\n");
     for (int i = 0; i < linkedListLength(commits); i++)
     {
@@ -258,25 +391,34 @@ bool selectCommand(List *commits, List *files)
         gitLog(commits);
     else if (choice == 5)
     {
-        free(file);
         return false;
     }
-    free(file);
+    else
+    {
+        cat("invalid choice");
+    }
     return true;
 }
 
 // for random c stuff i need to quickly test. nothing to do with the program
 void test(void)
 {
-    char *str = "wow\0";
-    printf("%d\n", strlen(str));
+
+    char *str = parseStr("wb ikuki\n\nxoom", '\n', 2);
+    cat(str);
+
+    exit(EXIT_SUCCESS);
 }
 
 int main(void)
 {
-    test();
+    // test();
     List *commits = linkedListCreate();
+    if (commits == NULL)
+        crash();
     List *files = linkedListCreate();
+    if (files == NULL)
+        crash();
 
     char *FILEPATHS[3] = {"../gitFiles/a.txt\0", "../gitFiles/b.txt\0", "../gitFiles/d.txt\0"};
     int numStartingFiles = sizeof(FILEPATHS) / sizeof(FILEPATHS[0]);
@@ -285,7 +427,8 @@ int main(void)
         TxtFile *file = toTxtFile(FILEPATHS[i]);
         if (file == NULL)
             crash();
-        linkedListAddToEnd(files, file);
+        if (linkedListAddToEnd(files, file) == NULL)
+            crash();
     }
 
     while (true)

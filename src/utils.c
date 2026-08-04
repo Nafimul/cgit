@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "../include/linked_list.h"
+#include "../include/utils.h"
 
 void cat(char *string)
 {
@@ -50,57 +51,117 @@ bool isTxt(char *filepath)
     return endsWith(filepath, ".txt\0");
 }
 
-List *splitStr(char *str, char delimiter)
+// @return a substring ending at the given delimiter. where it starts depends on numDelimsToSkip.
+char *parseStr(char *str, char delim, int numDelimsToSkip)
+{
+    if (str == NULL || numDelimsToSkip < 0)
+        return NULL;
+
+    int delimLocation = -1;
+    int startLocation = 0;
+
+    //"super\n
+    //\0"
+    // len = 6
+    // del  = 5
+    // start = 0
+    // sub len =
+
+    // get the start and end location of the substr
+    // then set start = delim + 1
+    // then do it again
+
+    for (int i = 0; i <= numDelimsToSkip; i++)
+    {
+        startLocation = delimLocation + 1;
+        for (int j = startLocation; j <= strlen(str); j++)
+        {
+            if (str[j] == '\0')
+            {
+                delimLocation = j + 1;
+                if (i < numDelimsToSkip)
+                    return NULL;
+            }
+            if (str[j] == delim)
+            {
+                delimLocation = j;
+                break;
+            }
+        }
+    }
+
+    int subStrLen = (delimLocation - startLocation + 1);
+    // printf("%d\n", startLocation);
+    // printf("%d\n", delimLocation);
+    // printf("%d\n", subStrLen);
+    char *subStr = malloc(sizeof(char) * subStrLen);
+    char *offsetStr = str + startLocation;
+
+    char tempSubStr[subStrLen];
+    strncpy(tempSubStr, offsetStr, subStrLen);
+    tempSubStr[subStrLen - 1] = '\0';
+    strncpy(subStr, tempSubStr, subStrLen);
+
+    return subStr;
+}
+
+List *splitStr(char *str, char *delimiter)
 {
     if (str == NULL)
         return NULL;
 
-    char strCopy[strlen(str) + 1];
+    char *strCopy = malloc(sizeof(char) * (strlen(str) + 1));
+    CHECK(strCopy != NULL);
     strcpy(strCopy, str);
     List *strings = linkedListCreate();
+    CHECK(strings != NULL);
 
+    char *substr = NULL;
     for (int i = 0;; i++)
     {
         char *tempSubStr = NULL;
-        if (i == 0)
-            tempSubStr = strtok(strCopy, &delimiter);
-        else
-            tempSubStr = strtok(NULL, &delimiter);
+        tempSubStr = parseStr(strCopy, *delimiter, i);
         if (tempSubStr == NULL)
             break;
-        char *substr = malloc(strlen(tempSubStr) * sizeof(char));
+        substr = malloc((strlen(tempSubStr) + 1) * sizeof(char));
+        CHECK(substr != NULL);
         strcpy(substr, tempSubStr);
-        linkedListAddToEnd(strings, substr);
+        CHECK(linkedListAddToEnd(strings, substr) != NULL);
     }
 
     return strings;
-}
 
-void removeCharFromStart(char *str, char toRemove)
-{
-    for (int i = 0; i < strlen(str); i++)
-    {
-        if (str[i] != toRemove)
-            return;
-    }
+cleanup:
+    linkedListFree(strings, true);
+    if (substr != NULL)
+        free(substr);
+    if (strCopy != NULL)
+        free(strCopy);
+    return NULL;
 }
 
 char *getUserInput(int maxLen)
 {
+    if (maxLen <= 0)
+        return NULL;
+
     int maxBits = maxLen * sizeof(char);
     char *input = malloc(maxBits);
+    CHECK(input != NULL);
     while (true)
     {
-        input = fgets(input, maxBits, stdin);
-        // if fgets failed, return null
-        if (input == NULL)
-            return NULL;
-        // if there are newlines left in stdin, get rid of them
+        char *fgetsResult = fgets(input, maxBits, stdin);
+        CHECK(fgetsResult != NULL);
+        // only stop taking input when valid, non-blank, input is entered
         if (strcmp(input, "") != 0 && strcmp(input, "\n") != 0)
             break;
-        // if input was too long return null
-        if (strstr(input, "\n") == NULL)
-            return NULL;
+        // if input was too long
+        CHECK(strstr(input, "\n") != NULL);
     }
     return input;
+
+cleanup:
+    if (input != NULL)
+        free(input);
+    return NULL;
 }

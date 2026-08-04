@@ -16,8 +16,8 @@ bool startsWith(char *str, char *substr);
 
 bool isTxt(char *filepath);
 
-List *splitStr(char *str, char delimiter);
-
-void removeCharFromStart(char *str, char toRemove);
+List *splitStr(char *str, char *delimiter);
 
 char *getUserInput(int maxLen);
+
+char *parseStr(char *str, char delim, int numDelimsToSkip);
