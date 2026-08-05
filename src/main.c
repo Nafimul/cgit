@@ -181,6 +181,7 @@ bool commit(List *commits, TxtFile *newFile, List *oldFiles)
     cat("enter a commit message");
     const int MAX_MESSAGE_LEN = 100;
     char *message = getUserInput(MAX_MESSAGE_LEN);
+    CHECK(message != NULL);
 
     changes = linkedListCreate();
     CHECK(changes != NULL);
@@ -220,6 +221,8 @@ bool commit(List *commits, TxtFile *newFile, List *oldFiles)
     return true;
 
 cleanup:
+    if (message != NULL)
+        free(message);
     if (oldLines != NULL)
         linkedListFree(oldLines, true);
     if (newLines != NULL)
@@ -288,7 +291,6 @@ bool revertChange(Change *change)
     FILE *newFile = fopen(change->filePath, "w+");
     CHECK(newFile != NULL);
     CHECK(fprintf(newFile, "%s", txtFile->contents) >= 0);
-    cat(txtFile->contents);
     success = true;
 
 cleanup:
@@ -362,7 +364,6 @@ bool selectCommand(List *commits, List *files)
         file = selectFile(files);
         if (file == NULL)
             crash();
-        cat(file->contents);
     }
     else if (choice == 2)
     {
@@ -404,7 +405,7 @@ bool selectCommand(List *commits, List *files)
 void test(void)
 {
 
-    char *str = parseStr("wb ikuki\n\nxoom", '\n', 2);
+    char *str = parseStr("wb ikuki\n\nxoom\0", '\n', 1);
     cat(str);
 
     exit(EXIT_SUCCESS);
