@@ -6,11 +6,11 @@
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-void txtFileFree(TxtFile *file)
+void txtFileFree(void *ptr)
 {
-    if (!file)
+    if (!ptr)
         return;
-
+    TxtFile *file = ptr;
     free(file->contents);
     free(file->filePath);
     free(file);
@@ -52,7 +52,7 @@ bool txtFileEditLine(TxtFile *file, char *newLine, int lineNum)
         }
     }
 
-    linkedListFree(oldLines, true);
+    linkedListFree(oldLines, free);
     free(file->contents);
     file->contents = newContents;
     return true;

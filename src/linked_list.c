@@ -14,13 +14,13 @@ struct List
     struct Node *first;
     struct Node *last;
 };
-static void nodeFree(struct Node *node, bool freeValue)
+static void nodeFree(struct Node *node, Destructor destructor)
 {
     if (node == NULL)
         return;
 
-    if (freeValue)
-        free(node->value);
+    if (destructor != NULL)
+        destructor(node->value);
     free(node);
 }
 
@@ -56,6 +56,7 @@ struct NodeType *linkedListAddToEnd(struct List *list, NodeType value)
     if (list == NULL)
         return NULL;
 
+
     struct Node *node = linkedListCreateNode(value);
     if (node == NULL)
         return NULL;
@@ -72,7 +73,7 @@ struct NodeType *linkedListAddToEnd(struct List *list, NodeType value)
     return node->value;
 }
 
-void linkedListRemoveFromEnd(struct List *list, bool freeValue)
+void linkedListRemoveFromEnd(struct List *list, Destructor destructor)
 {
     if (list == NULL)
         return;
@@ -87,7 +88,7 @@ void linkedListRemoveFromEnd(struct List *list, bool freeValue)
         }
         node = node->next;
     }
-    nodeFree(list->last, freeValue);
+    nodeFree(list->last, destructor);
 };
 
 static struct Node *linkedListGetNode(struct List *list, int pos)
@@ -134,7 +135,7 @@ int linkedListLength(struct List *list)
     }
 }
 
-void linkedListFree(struct List *list, bool freeValues)
+void linkedListFree(struct List *list, Destructor destructor)
 {
     if (list == NULL)
         return;
@@ -143,9 +144,11 @@ void linkedListFree(struct List *list, bool freeValues)
     while (true)
     {
         if (node == NULL)
-            return;
+            break;
         struct Node *nextNode = node->next;
-        nodeFree(node, freeValues);
+        nodeFree(node, destructor);
         node = nextNode;
     }
+
+    free(list);
 }

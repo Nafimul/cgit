@@ -10,4 +10,4 @@ TxtFile *toTxtFile(char *filepath);
 
 bool txtFileEditLine(TxtFile *file, char *newLine, int lineNum);
 
-void txtFileFree(TxtFile *file);
+void txtFileFree(void *ptr);

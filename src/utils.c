@@ -96,6 +96,7 @@ List *splitStr(char *str, char *delimiter)
     if (str == NULL)
         return NULL;
 
+    char *tempSubStr = NULL;
     char *strCopy = malloc(sizeof(char) * (strlen(str) + 1));
     CHECK(strCopy != NULL);
     strcpy(strCopy, str);
@@ -105,24 +106,28 @@ List *splitStr(char *str, char *delimiter)
     char *substr = NULL;
     for (int i = 0;; i++)
     {
-        char *tempSubStr = NULL;
         tempSubStr = parseStr(strCopy, *delimiter, i);
         if (tempSubStr == NULL)
             break;
         substr = malloc((strlen(tempSubStr) + 1) * sizeof(char));
         CHECK(substr != NULL);
         strcpy(substr, tempSubStr);
-        CHECK(linkedListAddToEnd(strings, substr) != NULL);
+        free(tempSubStr);
+        tempSubStr = NULL;
+        if (linkedListAddToEnd(strings, substr) == NULL)
+        {
+            free(substr);
+            goto cleanup;
+        }
     }
 
+    free(strCopy);
     return strings;
 
 cleanup:
-    linkedListFree(strings, true);
-    if (substr != NULL)
-        free(substr);
-    if (strCopy != NULL)
-        free(strCopy);
+    free(strCopy);
+    free(tempSubStr);
+    linkedListFree(strings, free);
     return NULL;
 }
 
@@ -157,10 +162,13 @@ int getUserDigitInputAboveZero(int max)
     if (max <= 0)
         return -1;
 
+    char *choice = NULL;
     while (true)
     {
-        char *choice = getUserInput(2);
+        choice = getUserInput(2);
+        CHECK(choice != NULL);
         int choiceNum = atoi(choice);
+        free(choice);
         if (choiceNum <= 0 || choiceNum > max)
         {
             cat("not valid input. try again");
@@ -168,4 +176,8 @@ int getUserDigitInputAboveZero(int max)
         }
         return choiceNum;
     }
+
+cleanup:
+    free(choice);
+    return -1;
 }

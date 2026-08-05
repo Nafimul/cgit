@@ -8,6 +8,8 @@
             goto cleanup; \
     } while (0)
 
+typedef void (*Destructor)(void *);
+
 void cat(char *string);
 
 bool endsWith(char *str, char *substr);

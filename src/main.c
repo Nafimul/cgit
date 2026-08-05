@@ -20,25 +20,25 @@ typedef struct
     List *changes;
 } Commit;
 
-void changeFree(Change *change, bool recursive)
+void changeFree(void *ptr)
 {
-    if (recursive)
-    {
-        free(change->filePath);
-        free(change->oldLine);
-        free(change->newLine);
-    }
+    if (!ptr)
+        return;
+    Change *change = ptr;
+    free(change->filePath);
+    free(change->oldLine);
+    free(change->newLine);
 
     free(change);
 }
 
-void commitFree(Commit *commit, bool recursive)
+void commitFree(void *ptr)
 {
-    if (recursive)
-    {
-        linkedListFree(commit->changes, true);
-        free(commit->message);
-    }
+    if (!ptr)
+        return;
+    Commit *commit = ptr;
+    free(commit->message);
+    linkedListFree(commit->changes, changeFree);
 
     free(commit);
 }
@@ -188,7 +188,9 @@ bool commit(List *commits, TxtFile *newFile, List *oldFiles)
     TxtFile *oldFile = getMatchingFile(newFile, oldFiles);
 
     oldLines = splitStr(oldFile->contents, "\n");
+    CHECK(oldLines != NULL);
     newLines = splitStr(newFile->contents, "\n");
+    CHECK(newLines != NULL);
 
     for (int lineNum = 1;; lineNum++)
     {
@@ -208,29 +210,30 @@ bool commit(List *commits, TxtFile *newFile, List *oldFiles)
     }
 
     commit = commitCreate(message, changes);
+    free(message);
     CHECK(commit != NULL);
     CHECK(linkedListAddToEnd(commits, commit) != NULL);
     if (!applyCommit(oldFile, commit))
     {
-        linkedListRemoveFromEnd(commits, true);
+        linkedListRemoveFromEnd(commits, commitFree);
         goto cleanup;
     }
 
-    linkedListFree(oldLines, true);
-    linkedListFree(newLines, true);
+    linkedListFree(oldLines, free);
+    linkedListFree(newLines, free);
     return true;
 
 cleanup:
     if (message != NULL)
         free(message);
     if (oldLines != NULL)
-        linkedListFree(oldLines, true);
+        linkedListFree(oldLines, free);
     if (newLines != NULL)
-        linkedListFree(newLines, true);
+        linkedListFree(newLines, free);
     if (changes != NULL)
-        linkedListFree(changes, true);
+        linkedListFree(changes, changeFree);
     if (commit != NULL)
-        commitFree(commit, true);
+        commitFree(commit);
     return false;
 }
 
@@ -251,6 +254,9 @@ TxtFile *selectFile(List *files)
 {
     if (files == NULL || linkedListLength(files) == 0)
         return NULL;
+
+    TxtFile *newFile = NULL;
+
     printf("Enter a number:\n");
     for (int i = 0; i < linkedListLength(files); i++)
     {
@@ -262,6 +268,7 @@ TxtFile *selectFile(List *files)
     while (true)
     {
         int choiceNum = getUserDigitInputAboveZero(linkedListLength(files));
+        CHECK(choiceNum != -1);
         Commit *commit = NULL;
         TxtFile *oldFile = NULL;
         linkedListGetValue(files, choiceNum - 1, (void **)&oldFile);
@@ -270,11 +277,16 @@ TxtFile *selectFile(List *files)
             cat("invalid number. try again");
             continue;
         }
-        TxtFile *newFile = toTxtFile(oldFile->filePath);
+        newFile = toTxtFile(oldFile->filePath);
+        CHECK(newFile != NULL);
         if (newFile == NULL)
             return NULL;
         return newFile;
     }
+
+cleanup:
+    txtFileFree(newFile);
+    return NULL;
 }
 
 bool revertChange(Change *change)
@@ -393,24 +405,15 @@ bool selectCommand(List *commits, List *files)
         gitLog(commits);
     else if (choiceNum == 5)
     {
+        txtFileFree(file);
         return false;
     }
+    txtFileFree(file);
     return true;
-}
-
-// for random c stuff i need to quickly test. nothing to do with the program
-void test(void)
-{
-
-    char *str = parseStr("wb ikuki\n\nxoom\0", '\n', 1);
-    cat(str);
-
-    exit(EXIT_SUCCESS);
 }
 
 int main(void)
 {
-    // test();
     List *commits = linkedListCreate();
     if (commits == NULL)
         crash();
@@ -434,5 +437,8 @@ int main(void)
         if (!selectCommand(commits, files))
             break;
     }
+
+    linkedListFree(files, txtFileFree);
+    linkedListFree(commits, commitFree);
     return 0;
 }
