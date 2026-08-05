@@ -89,12 +89,13 @@ TxtFile *toTxtFile(char *filepath)
     fileObj->filePath = strdup(filepath);
     buffer = NULL;
 
+fclose(f);
+    return fileObj;
+
 cleanup:
     if (f)
         fclose(f);
     free(buffer);
-
-    if (fileObj && fileObj->filePath == NULL)
         txtFileFree(fileObj);
     return fileObj;
 }
