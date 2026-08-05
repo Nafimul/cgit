@@ -21,3 +21,5 @@ List *splitStr(char *str, char *delimiter);
 char *getUserInput(int maxLen);
 
 char *parseStr(char *str, char delim, int numDelimsToSkip);
+
+int getUserDigitInputAboveZero(int max);

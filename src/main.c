@@ -261,10 +261,10 @@ TxtFile *selectFile(List *files)
 
     while (true)
     {
-        int choice;
-        scanf("%d", &choice);
+        int choiceNum = getUserDigitInputAboveZero(linkedListLength(files));
+        Commit *commit = NULL;
         TxtFile *oldFile = NULL;
-        linkedListGetValue(files, choice - 1, (void **)&oldFile);
+        linkedListGetValue(files, choiceNum - 1, (void **)&oldFile);
         if (oldFile == NULL)
         {
             cat("invalid number. try again");
@@ -335,10 +335,9 @@ Commit *selectCommit(List *commits)
 
     while (true)
     {
-        int choice;
-        scanf("%d", &choice);
+        int choiceNum = getUserDigitInputAboveZero(linkedListLength(commits));
         Commit *commit = NULL;
-        linkedListGetValue(commits, choice - 1, (void **)&commit);
+        linkedListGetValue(commits, choiceNum - 1, (void **)&commit);
         if (commit == NULL)
             continue;
         return commit;
@@ -356,16 +355,18 @@ bool selectCommand(List *commits, List *files)
     printf("4) git log\n");
     printf("5) exit\n");
 
-    int choice;
-    scanf("%d", &choice);
+    int NUM_CHOICES = 5;
+    int choiceNum = getUserDigitInputAboveZero(NUM_CHOICES);
 
-    if (choice == 1)
+    if (choiceNum == 1)
     {
         file = selectFile(files);
         if (file == NULL)
             crash();
+        else
+            cat(file->contents);
     }
-    else if (choice == 2)
+    else if (choiceNum == 2)
     {
         file = selectFile(files);
         if (file == NULL)
@@ -375,7 +376,7 @@ bool selectCommand(List *commits, List *files)
         else
             crash();
     }
-    else if (choice == 3)
+    else if (choiceNum == 3)
     {
         Commit *commit = selectCommit(commits);
         if (commit == NULL)
@@ -388,15 +389,11 @@ bool selectCommand(List *commits, List *files)
                 crash();
         }
     }
-    else if (choice == 4)
+    else if (choiceNum == 4)
         gitLog(commits);
-    else if (choice == 5)
+    else if (choiceNum == 5)
     {
         return false;
-    }
-    else
-    {
-        cat("invalid choice");
     }
     return true;
 }

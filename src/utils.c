@@ -151,3 +151,21 @@ cleanup:
         free(input);
     return NULL;
 }
+
+int getUserDigitInputAboveZero(int max)
+{
+    if (max <= 0)
+        return -1;
+
+    while (true)
+    {
+        char *choice = getUserInput(2);
+        int choiceNum = atoi(choice);
+        if (choiceNum <= 0 || choiceNum > max)
+        {
+            cat("not valid input. try again");
+            continue;
+        }
+        return choiceNum;
+    }
+}
