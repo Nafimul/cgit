@@ -118,11 +118,11 @@ Change *changeCreate(char *filePath, int lineNum, char *newLine, char *oldLine)
     Change *change = malloc(sizeof(Change));
     CHECK(change != NULL);
     if (oldLine == NULL)
-        strcpy(oldLineCopy, "\n");
+        strcpy(oldLineCopy, "");
     else
         strcpy(oldLineCopy, oldLine);
     if (newLine == NULL)
-        strcpy(newLineCopy, "\n");
+        strcpy(newLineCopy, "");
     else
         strcpy(newLineCopy, newLine);
     strcpy(filePathCopy, filePath);
