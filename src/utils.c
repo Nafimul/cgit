@@ -51,7 +51,7 @@ bool isTxt(char *filepath)
     return endsWith(filepath, ".txt\0");
 }
 
-// @return a substring ending at the given delimiter. where it starts depends on numDelimsToSkip.
+/// @return a substring ending at the given delimiter. where it starts depends on numDelimsToSkip.
 char *parseStr(char *str, char delim, int numDelimsToSkip)
 {
     if (str == NULL || numDelimsToSkip < 0)
@@ -59,17 +59,6 @@ char *parseStr(char *str, char delim, int numDelimsToSkip)
 
     int delimLocation = -1;
     int startLocation = 0;
-
-    //"super\n
-    //\0"
-    // len = 6
-    // del  = 5
-    // start = 0
-    // sub len =
-
-    // get the start and end location of the substr
-    // then set start = delim + 1
-    // then do it again
 
     for (int i = 0; i <= numDelimsToSkip; i++)
     {
@@ -91,9 +80,6 @@ char *parseStr(char *str, char delim, int numDelimsToSkip)
     }
 
     int subStrLen = (delimLocation - startLocation + 1);
-    // printf("%d\n", startLocation);
-    // printf("%d\n", delimLocation);
-    // printf("%d\n", subStrLen);
     char *subStr = malloc(sizeof(char) * subStrLen);
     char *offsetStr = str + startLocation;
 
