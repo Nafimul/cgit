@@ -4,6 +4,8 @@
 #include "../include/txt_file.h"
 #include "../include/utils.h"
 
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 void txtFileFree(TxtFile *file)
 {
     if (!file)
@@ -28,12 +30,14 @@ bool txtFileEditLine(TxtFile *file, char *newLine, int lineNum)
     oldLines = splitStr(file->contents, "\n");
     CHECK(oldLines != NULL);
 
-    for (int i = 0; i < linkedListLength(oldLines); i++)
+    int newContentsNumLines = MAX(linkedListLength(oldLines), lineNum);
+    for (int i = 0; i < newContentsNumLines; i++)
     {
         if (i == lineNum - 1)
         {
             strcat(newContents, newLine);
-            strcat(newContents, "\n");
+            if (i != newContentsNumLines - 1)
+                strcat(newContents, "\n");
         }
         else
         {
@@ -43,12 +47,12 @@ bool txtFileEditLine(TxtFile *file, char *newLine, int lineNum)
             {
                 strcat(newContents, oldLine);
             }
-            if (i != linkedListLength(oldLines) - 1)
+            if (i != newContentsNumLines - 1)
                 strcat(newContents, "\n");
         }
     }
 
-linkedListFree(oldLines, true);
+    linkedListFree(oldLines, true);
     free(file->contents);
     file->contents = newContents;
     return true;
@@ -90,13 +94,13 @@ TxtFile *toTxtFile(char *filepath)
     fileObj->filePath = strdup(filepath);
     buffer = NULL;
 
-fclose(f);
+    fclose(f);
     return fileObj;
 
 cleanup:
     if (f)
         fclose(f);
     free(buffer);
-        txtFileFree(fileObj);
-    return fileObj;
+    txtFileFree(fileObj);
+    return NULL;
 }
