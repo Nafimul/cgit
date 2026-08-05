@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "linked_list.h"
+#include "utils.h"
 
 struct Node
 {
@@ -18,31 +19,36 @@ static void nodeFree(struct Node *node, bool freeValue)
     if (node == NULL)
         return;
 
-    node->next = NULL;
     if (freeValue)
         free(node->value);
-    node->value = NULL;
     free(node);
 }
 
 struct List *linkedListCreate(void)
 {
     struct List *list = malloc(sizeof(List));
-    if (list == NULL)
-        return NULL;
+    CHECK(list != NULL);
+
     list->first = NULL;
     list->last = NULL;
     return list;
+
+cleanup:
+    free(list);
+    return NULL;
 }
 
 static struct Node *linkedListCreateNode(NodeType value)
 {
     struct Node *node = malloc(sizeof(struct Node));
-    if (node == NULL)
-        return NULL;
+    CHECK(node != NULL);
     node->value = value;
     node->next = NULL;
     return node;
+
+cleanup:
+    free(node);
+    return NULL;
 }
 
 struct NodeType *linkedListAddToEnd(struct List *list, NodeType value)
