@@ -48,6 +48,7 @@ bool txtFileEditLine(TxtFile *file, char *newLine, int lineNum)
         }
     }
 
+linkedListFree(oldLines, true);
     free(file->contents);
     file->contents = newContents;
     return true;
