@@ -43,7 +43,8 @@ bool txtFileEditLine(TxtFile *file, char *newLine, int lineNum)
             {
                 strcat(newContents, oldLine);
             }
-            strcat(newContents, "\n");
+            if (i != linkedListLength(oldLines) - 1)
+                strcat(newContents, "\n");
         }
     }
 
