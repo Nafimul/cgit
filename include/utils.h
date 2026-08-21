@@ -1,3 +1,4 @@
+#pragma once
 #include <stdbool.h>
 #include "../include/linked_list.h"
 
